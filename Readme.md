@@ -10,9 +10,10 @@
 
 스크립트를 시작하기 전에 AWS에서 다음의 작업을 필요합니다.
 
-1. 구축 및 테스트의 편의성을 위해 administraotr 권한을 가진 IAM User 생성
-2. 생성된 유저에 Access Key 생성
-3. Default VPC는 삭제
+1. Route53에 DNS 도메인 ( KOPS Cluster Name으로 사용됨 )
+2. 구축 및 테스트의 편의성을 위해 administraotr 권한을 가진 IAM User 생성
+3. 생성된 유저에 Access Key 생성
+4. Default VPC는 삭제
 
 생성된 AWS Access Key와 Secret Key는 Ansible에서 사용이 됩니다.
 
