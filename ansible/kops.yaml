@@ -1,0 +1,12 @@
+- hosts: all
+  gather_facts: no
+  become: yes
+  become_method: sudo
+  become_flags: 'su - root /bin/bash -c'
+  vars_prompt:
+    - name: RunType
+      prompt: "What do you want to run type: [install-kops, create-cluster, delete-cluster]"
+      private: no
+  roles:
+    - kops
+    

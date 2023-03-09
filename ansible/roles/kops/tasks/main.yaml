@@ -1,0 +1,16 @@
+- include_vars: .secret
+
+- import_tasks: install-prerequirement.yaml
+  when: RunType == "install-kops"
+
+- import_tasks: install-kops.yaml
+  when: RunType == "install-kops"
+
+- import_tasks: install-validate.yaml
+  when: RunType == "install-kops"
+
+- import_tasks: create-cluster.yaml
+  when: RunType == "create-cluster"
+
+- import_tasks: delete-cluster.yaml
+  when: RunType == "delete-cluster"

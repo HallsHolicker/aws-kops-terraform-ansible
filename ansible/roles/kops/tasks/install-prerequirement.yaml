@@ -1,0 +1,3 @@
+- name : Configure aws credential
+  shell: "aws configure set aws_access_key_id {{ AWS_AccessKey }} && aws configure set aws_secret_access_key {{ AWS_SecretKey }} && aws configure set region {{ region }}"
+

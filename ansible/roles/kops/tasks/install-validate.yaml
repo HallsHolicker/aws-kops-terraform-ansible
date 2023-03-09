@@ -1,0 +1,20 @@
+- name: Check to aws cli version
+  shell: "aws --version | cut -d ' ' -f1 | cut -d '/' -f2"
+  register: awsCliVersion
+
+- name: Check to kubectl Version
+  shell: "kubectl version --client=true -o yaml | grep gitVersion | cut -d \":\" -f 2"
+  register: kubecltVersion
+
+- name: Check to Kops Version
+  shell: "kops version | cut -d \":\" -f 2"
+  register: kopsVersion
+
+- debug: 
+    msg: "AWS Cli Version : {{ awsCliVersion.stdout }}"
+
+- debug: 
+    msg: "Kubectl Version : {{ kubecltVersion.stdout }}"
+
+- debug: 
+    msg: "Kops Version : {{ kopsVersion.stdout }}"

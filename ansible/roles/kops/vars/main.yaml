@@ -1,0 +1,11 @@
+kops_version: ""
+region: ap-northeast-2
+master_size: t3.medium
+node_size: t3.medium
+node_count: 2
+network_cidr: 172.30.0.0/16
+cluster_name: hallsholicker.com
+kubernetes_version: 1.24.10
+s3_name: hallsholicker-kops
+
+

@@ -1,0 +1,25 @@
+- name: Check Kubectl exists
+  stat:
+    path: /usr/local/bin/kubectl
+  register: kubectlExists
+
+- name: Download kubectl
+  shell: "cd /usr/local/src && curl -LO https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+  when: not kubectlExists.stat.exists
+
+- name: Install kubectl
+  shell: "cd /usr/local/src && install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl"
+  when: not kubectlExists.stat.exists
+
+- name: Check Kops exists
+  stat:
+    path: /usr/local/bin/kops
+  register: kopsExists
+
+- name: Download kops
+  shell: "cd /usr/local/src && curl -Lo kops https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '\"' -f 4)/kops-linux-amd64"
+  when: not kopsExists.stat.exists
+
+- name: Install kops
+  shell: "cd /usr/local/src && chmod +x kops && mv kops /usr/local/bin/kops"
+  when: not kopsExists.stat.exists

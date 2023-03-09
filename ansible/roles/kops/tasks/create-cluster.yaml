@@ -1,0 +1,2 @@
+- name: Create Cluster
+  shell: "kops create cluster --zones={{ region }}a,{{ region }}c --networking amazonvpc --cloud aws --master-size {{ master_size }} --node-size {{ node_size }} --node-count={{ node_count }} --network-cidr {{ network_cidr }} --ssh-public-key ~/.ssh/id_rsa.pub --name={{ cluster_name }} --kubernetes-version \"{{ kubernetes_version }}\" --state=s3://{{ s3_name }} -y"
