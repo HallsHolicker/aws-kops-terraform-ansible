@@ -14,3 +14,6 @@
 
 - import_tasks: delete-cluster.yaml
   when: RunType == "delete-cluster"
+
+- import_tasks: info-cluster.yaml
+  when: RunType == "info-cluster" or RunType == "create-cluster"

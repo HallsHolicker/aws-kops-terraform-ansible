@@ -1,2 +1,14 @@
+- name: Check Cluster Status
+  shell: "kops validate cluster --name={{ cluster_name }}  --state=s3://{{ s3_name }}"
+  register: kopsClusterStatus
+  ignore_errors: true
+
 - name: Create Cluster
-  shell: "kops create cluster --zones={{ region }}a,{{ region }}c --networking amazonvpc --cloud aws --master-size {{ master_size }} --node-size {{ node_size }} --node-count={{ node_count }} --network-cidr {{ network_cidr }} --ssh-public-key ~/.ssh/id_rsa.pub --name={{ cluster_name }} --kubernetes-version \"{{ kubernetes_version }}\" --state=s3://{{ s3_name }} -y"
+  shell: "kops create cluster --zones={{ region }}a,{{ region }}c --networking amazonvpc --cloud aws --master-size {{ begin_master_size }} --master-count={{ begin_master_count }} --node-size {{ begin_node_size }} --node-count={{ begin_node_count }} --network-cidr {{ network_cidr }} --ssh-public-key ~/.ssh/id_rsa.pub --name={{ cluster_name }} --kubernetes-version \"{{ kubernetes_version }}\" --state=s3://{{ s3_name }} -y"
+  when: kopsClusterStatus.failed and 'validation failed' in kopsClusterStatus.stderr and kopsClusterStatus.stdout == ""
+  register: kopsCreateCluster
+
+- name: Success to make cluster create ( Wating time of 5 to 10 minutes )
+  shell: "kops validate cluster --state=s3://{{ s3_name }} --wait 10m"
+  register: checkKopsStatus
+  when: kopsCreateCluster.changed

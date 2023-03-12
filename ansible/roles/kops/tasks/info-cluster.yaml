@@ -1,0 +1,44 @@
+- name: Check to cluster running
+  shell: "kops validate cluster --name={{ cluster_name }} --state=s3://{{ s3_name }}"
+
+- name : Get KOPS Cluster Info
+  shell: "kops --state=s3://{{ s3_name }} get all"
+  register: getKopsClusterInfo
+
+- name: Get KOPS Instance
+  shell: "kops --state=s3://{{ s3_name }} get instances"
+  register: getKopsInstance
+
+- name: Get KOPS Nodes IP
+  shell: "aws ec2 describe-instances --query \"Reservations[*].Instances[*].{PublicIPAdd:PublicIpAddress,PrivateIPAdd:PrivateIpAddress,InstanceName:Tags[?Key=='Name']|[0].Value,Status:State.Name}\" --filters Name=instance-state-name,Values=running --output table"
+  register: getKopsNodesIp
+
+- name: Get K8S Cluster Information
+  shell: "kubectl cluster-info"
+  register: getK8sClusterInfo
+
+- name: Get K8S Nodes 
+  shell: "kubectl get nodes"
+  register: getK8sNodes
+
+- name: Get K8S kube-system Pods
+  shell: "kubectl get pod -n kube-system -o=custom-columns=NAME:.metadata.name,IP:.status.podIP,STATUS:.status.phase"
+  register: getK8sKubeSystemPods
+
+- debug: 
+    msg: "KOPS Cluster Information\n{{ getKopsClusterInfo.stdout }}"
+
+- debug: 
+    msg: "KOPS Instance\n{{ getKopsInstance.stdout }}"
+  
+- debug: 
+    msg: "KOPS Nodes IP\n{{ getKopsNodesIp.stdout }}"
+
+- debug: 
+    msg: "K8S Cluster Information\n{{ getK8sClusterInfo.stdout }}"
+
+- debug: 
+    msg: "K8S Node Information\n{{ getK8sNodes.stdout }}"
+
+- debug: 
+    msg: "K8S Kube-System Pods Information\n{{ getK8sKubeSystemPods.stdout }}"

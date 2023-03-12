@@ -41,9 +41,10 @@ AWS_SecretKey: <생성된 Secret Key>
 
 1. install-kops : KOPS Client Ec2에 kubectl, kops 설치
 2. create-cluster : KOPS를 이용한 K8S 생성
-3. info-cluster: K8S 정보 ( 예정 )
-3. delete-cluster : 생성된 K8S 삭제
-4. install-externaldns : External DNS Addon 설치 ( 예정 )
+3. info-cluster: K8S 정보 ( KOPS(Cluster Info, Instance Group, Instance, Node IP), K8S(Cluster Info, Nodes, pods) )
+4. delete-cluster : 생성된 K8S 삭제
+5. install-externaldns : External DNS Addon 설치 ( 예정 )
+6. delete-externaldns : External DNS Addon 삭제 ( 예정 )
 
 ## 실행 순서
 
@@ -54,4 +55,3 @@ AWS_SecretKey: <생성된 Secret Key>
    예>
    ansible-playbook --private-key=<ec2 key pair location> -i ec2-user@<terraform에서 확인한 ip>, kops.yaml
    ```
-
