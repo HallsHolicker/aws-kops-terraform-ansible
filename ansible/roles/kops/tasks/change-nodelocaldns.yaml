@@ -1,0 +1,48 @@
+- name: Download Kops Cluster Config File
+  shell: "kops get cluster --state=s3://{{ s3_name }} -o yaml > {{ cluster_name }}.yaml"
+
+- name: Check externaldns exists
+  shell: "cat {{ cluster_name }}.yaml | grep nodeLocalDNS | wc -l"
+  register: checkNodeLocaldnsExists
+
+- name: Edit Kops Cluster Config file for nodeLocalDNS 
+  lineinfile:
+    path: "{{ cluster_name }}.yaml"
+    insertafter: EOF
+    line: "{{ item }}"
+  loop:
+    - "  kubeDNS:"
+    - "    provider: CoreDNS"
+    - "    nodeLocalDNS:"
+    - "      enabled: true"
+    - "      memoryRequest: 5Mi"
+    - "      cpuRequest: 25m"
+  when: checkNodeLocaldnsExists.stdout == '0' and nodeLocalDNSCache
+  register: changeStatustatusNodeLocaldnsTrue
+
+- name: Edit Kops Cluster Config file for externodeLocalDNSnaldns 
+  lineinfile:
+    path: "{{ cluster_name }}.yaml"
+    state: absent
+    line: "{{ item }}"
+  loop:
+    - "  kubeDNS:"
+    - "    provider: CoreDNS"
+    - "    nodeLocalDNS:"
+    - "      enabled: true"
+    - "      memoryRequest: 5Mi"
+    - "      cpuRequest: 25m"
+  when: checkNodeLocaldnsExists.stdout == '1' and not nodeLocalDNSCache
+  register: changeStatustatusNodeLocaldnsFalse
+
+- name: Replace Kops Cluster Config
+  shell: "kops replace -f {{ cluster_name }}.yaml --state=s3://{{ s3_name }}"
+  when: changeStatustatusNodeLocaldnsTrue.changed or changeStatustatusNodeLocaldnsFalse.changed
+
+- name: Update Kops Cluster Config
+  shell: "kops update cluster --state=s3://{{ s3_name }} --yes && sleep 3"
+  when: changeStatustatusNodeLocaldnsTrue.changed or changeStatustatusNodeLocaldnsFalse.changed
+
+- name: Rolling-update Kops Cluster
+  shell: "kops rolling-update cluster --state=s3://{{ s3_name }}"
+  when: changeStatustatusNodeLocaldnsTrue.changed or changeStatustatusNodeLocaldnsFalse.changed

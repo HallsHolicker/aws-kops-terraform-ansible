@@ -24,4 +24,7 @@
 - import_tasks: delete-externaldns.yaml
   when: RunType == "delete-externaldns"
 
+- import_tasks: update-kops.yaml
+  when: RunType == "update-kops"
+
 - import_tasks: view.yaml

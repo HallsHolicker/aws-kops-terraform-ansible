@@ -1,0 +1,11 @@
+- include_vars: update.yaml
+
+- pause:
+    prompt: "What do you want to update: [workerNodeSize, nodeLocalDNSCache]"
+  register: updateInfo
+
+- import_tasks: change-workernode.yaml
+  when: updateInfo.user_input == "workerNodeSize"
+
+- import_tasks: change-nodelocaldns.yaml
+  when: updateInfo.user_input == "nodeLocalDNSCache"

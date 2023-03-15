@@ -1,0 +1,29 @@
+- name: Check work nodes size
+  shell: "kops get ig --state=s3://hallsholicker-kops | grep {{ targetZone }} | awk '{print $4$5}'"
+  register: checkWorkNodeSize
+
+- name: Change work nodes
+  shell: "kops edit ig --state=s3://{{ s3_name }} {{ targetZone }} --set spec.minSize={{ workerMinSize }} --set spec.maxSize={{ workerMaxSize }}"
+  when: checkWorkNodeSize.stdout != workerMinSize|string + workerMaxSize|string
+
+- name: Update Kops Cluster Config
+  shell: "kops update cluster --state=s3://{{ s3_name }} --yes && sleep 3"
+  when: checkWorkNodeSize.stdout != workerMinSize|string + workerMaxSize|string
+
+- name: Rolling-update Kops Cluster
+  shell: "kops rolling-update cluster --state=s3://{{ s3_name }}"
+  when: checkWorkNodeSize.stdout != workerMinSize|string + workerMaxSize|string
+
+- name: Check change work node size
+  shell: "kops get ig --state=s3://hallsholicker-kops | grep {{ targetZone }} | awk '{print $4$5}'"
+  until: checkWorkNodeSize.stdout == workerMinSize|string + workerMaxSize|string
+  retries: 180
+  delay: 10
+  when: checkWorkNodeSize.stdout == workerMinSize|string + workerMaxSize|string
+
+- name : Get KOPS Cluster Info
+  shell: "kops --state=s3://{{ s3_name }} get all"
+  register: getKopsClusterInfo
+
+- debug: 
+    msg: "KOPS Cluster Information\n{{ getKopsClusterInfo.stdout }}"

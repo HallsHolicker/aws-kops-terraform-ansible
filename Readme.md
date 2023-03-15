@@ -45,6 +45,20 @@ AWS_SecretKey: <생성된 Secret Key>
 4. delete-cluster : 생성된 K8S 삭제
 5. install-externaldns : External DNS Addon 설치
 6. delete-externaldns : External DNS Addon 삭제
+7. update-kops : Kops 설정 업데이트 ( 업데이트에 사용되는 변수들은 다음 경로의 파일을 사용합니다. roles/kops/vars/update.yaml)
+   A. workerNodeSize : Worker Node Size 변경
+      * Worker Node Size 변경은 다음값들을 변경후에 실행하면 됩니다.
+      ```
+      targetZone: nodes-ap-northeast-2a
+      workerMinSize: 1
+      workerMaxSize: 1
+      ```
+   B. nodeLocalDNSCache: Node Local DNS Cache 설정
+     * Node Local DNS Cach는 다음값을 변경후에 실행하면 됩니다.
+     ```
+     nodeLocalDNSCache: true or false
+     ```
+   C. maxPod: Max Pod 변경 ( 예정 )
 
 ## 실행 순서
 
