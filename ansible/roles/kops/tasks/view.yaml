@@ -1,0 +1,23 @@
+- debug: 
+    msg: "KOPS Cluster Information\n{{ getKopsClusterInfo.stdout }}"
+  when: RunType == "info-cluster" or RunType == "create-cluster"
+
+- debug: 
+    msg: "KOPS Instance\n{{ getKopsInstance.stdout }}"
+  when: RunType == "info-cluster" or RunType == "create-cluster"
+  
+- debug: 
+    msg: "KOPS Nodes IP\n{{ getKopsNodesIp.stdout }}"
+  when: RunType == "info-cluster" or RunType == "create-cluster"
+
+- debug: 
+    msg: "K8S Cluster Information\n{{ getK8sClusterInfo.stdout }}"
+  when: RunType == "info-cluster" or RunType == "create-cluster"
+
+- debug: 
+    msg: "K8S Node Information\n{{ getK8sNodes.stdout }}"
+  when: RunType == "info-cluster" or RunType == "create-cluster"
+
+- debug: 
+    msg: "K8S Kube-System Pods Information\n{{ getK8sKubeSystemPods.stdout }}"
+  when: RunType == "info-cluster" or RunType == "create-cluster"

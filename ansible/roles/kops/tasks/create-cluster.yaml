@@ -9,6 +9,9 @@
   register: kopsCreateCluster
 
 - name: Success to make cluster create ( Wating time of 5 to 10 minutes )
-  shell: "kops validate cluster --state=s3://{{ s3_name }} --wait 10m"
+  shell: "kops validate cluster --state=s3://{{ s3_name }}"
   register: checkKopsStatus
+  until: checkKopsStatus.stdout.find('Your cluster ' + cluster_name + ' is ready') != -1
+  retries: 20
+  delay: 60
   when: kopsCreateCluster.changed

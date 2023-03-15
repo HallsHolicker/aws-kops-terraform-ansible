@@ -43,8 +43,8 @@ AWS_SecretKey: <생성된 Secret Key>
 2. create-cluster : KOPS를 이용한 K8S 생성
 3. info-cluster: K8S 정보 ( KOPS(Cluster Info, Instance Group, Instance, Node IP), K8S(Cluster Info, Nodes, pods) )
 4. delete-cluster : 생성된 K8S 삭제
-5. install-externaldns : External DNS Addon 설치 ( 예정 )
-6. delete-externaldns : External DNS Addon 삭제 ( 예정 )
+5. install-externaldns : External DNS Addon 설치
+6. delete-externaldns : External DNS Addon 삭제
 
 ## 실행 순서
 
@@ -55,3 +55,6 @@ AWS_SecretKey: <생성된 Secret Key>
    예>
    ansible-playbook --private-key=<ec2 key pair location> -i ec2-user@<terraform에서 확인한 ip>, kops.yaml
    ```
+
+## 주의 사항
+Cluster 생성과 삭제를 빠르게 진행하면 AWS의 내부 DNS에서 도메인 갱신에 시간이 걸려 Cluster 생성이 되어도 Validate가 제대로 되지 않는 현상이 발생합니다.

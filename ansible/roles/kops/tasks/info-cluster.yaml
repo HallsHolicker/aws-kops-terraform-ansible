@@ -24,21 +24,3 @@
 - name: Get K8S kube-system Pods
   shell: "kubectl get pod -n kube-system -o=custom-columns=NAME:.metadata.name,IP:.status.podIP,STATUS:.status.phase"
   register: getK8sKubeSystemPods
-
-- debug: 
-    msg: "KOPS Cluster Information\n{{ getKopsClusterInfo.stdout }}"
-
-- debug: 
-    msg: "KOPS Instance\n{{ getKopsInstance.stdout }}"
-  
-- debug: 
-    msg: "KOPS Nodes IP\n{{ getKopsNodesIp.stdout }}"
-
-- debug: 
-    msg: "K8S Cluster Information\n{{ getK8sClusterInfo.stdout }}"
-
-- debug: 
-    msg: "K8S Node Information\n{{ getK8sNodes.stdout }}"
-
-- debug: 
-    msg: "K8S Kube-System Pods Information\n{{ getK8sKubeSystemPods.stdout }}"
