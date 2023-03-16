@@ -1,0 +1,92 @@
+- name: Copy awsloadbalancercontroller-iam-policy.json
+  copy:
+    src: awsloadbalancercontroller-iam-policy.json
+    dest: /tmp/awsloadbalancercontroller-iam-policy.json
+
+- name: Get Account ID
+  shell: "aws sts get-caller-identity --query 'Account' --output text"
+  register: getAccountID
+
+- name: Check AWS LoadBalancerController IAM Policy Exists
+  shell: "aws iam get-policy --policy-arn arn:aws:iam::{{ getAccountID.stdout }}:policy/AWSLoadBalancerControllerIAMPolicy"
+  register: checkAwsLoadBalancerControllerIamPolicyExists
+  ignore_errors: true
+
+- name: Create AWS LoadBalancerController IAM Policy
+  shell: "aws iam create-policy --policy-name AWSLoadBalancerControllerIAMPolicy --policy-document file:///tmp/awsloadbalancercontroller-iam-policy.json"
+  when: awsLoadBalancerController and checkAwsLoadBalancerControllerIamPolicyExists.failed
+
+- name: Attach AWS LoadBalancerController IAM Policy to master
+  shell: "aws iam attach-role-policy --policy-arn arn:aws:iam::{{ getAccountID.stdout }}:policy/AWSLoadBalancerControllerIAMPolicy --role-name masters.{{ cluster_name }}"
+  when: awsLoadBalancerController and checkAwsLoadBalancerControllerIamPolicyExists.failed
+
+- name: Attach AWS LoadBalancerController IAM Policy to node
+  shell: "aws iam attach-role-policy --policy-arn arn:aws:iam::{{ getAccountID.stdout }}:policy/AWSLoadBalancerControllerIAMPolicy --role-name nodes.{{ cluster_name }}"
+  when: awsLoadBalancerController and checkAwsLoadBalancerControllerIamPolicyExists.failed
+
+- name: Download Kops Cluster Config File
+  shell: "kops get cluster --state=s3://{{ s3_name }} -o yaml > {{ cluster_name }}.yaml"
+
+- name: Check AWS Load Balancer controller exists
+  shell: "cat {{ cluster_name }}.yaml | grep awsLoadBalancerController | wc -l"
+  register: checkAwsLoadBalancerController
+
+- name: Edit Kops Cluster Config file for AWS Load Balancer Controller 
+  lineinfile:
+    path: "{{ cluster_name }}.yaml"
+    insertafter: EOF
+    line: "{{ item }}"
+  loop:
+    - "  certManager:\n    enabled: true"
+    - "  awsLoadBalancerController:\n    enabled: true"
+  when: checkAwsLoadBalancerController.stdout == '0' and awsLoadBalancerController
+  register: changeStatusAwsLoadBalancerControllerTrue
+
+# - name: Edit Kops Cluster Config file for AWS Load Balancer Controller
+#   shell: "sed -i '/{{ item }}/,+1 d' {{ cluster_name }}.yaml"
+#   loop:
+#     - "  certManager:"
+#     - "  awsLoadBalancerController:"
+#   when: checkAwsLoadBalancerController.stdout == '1' and not awsLoadBalancerController
+#   register: changeStatusAwsLoadBalancerControllerFalse
+
+- name: Replace Kops Cluster Config
+  shell: "kops replace -f {{ cluster_name }}.yaml --state=s3://{{ s3_name }}"
+  when: changeStatusAwsLoadBalancerControllerTrue.changed
+
+- name: Update Kops Cluster Config
+  shell: "kops update cluster --state=s3://{{ s3_name }} --yes && sleep 3"
+  when: changeStatusAwsLoadBalancerControllerTrue.changed
+
+- name: Rolling-update Kops Cluster
+  shell: "kops rolling-update cluster --state=s3://{{ s3_name }}"
+  when: changeStatusAwsLoadBalancerControllerTrue.changed
+
+- name: Check AWS Load Balancer Controller
+  shell: "kubectl get pods -n kube-system -l app.kubernetes.io/name=aws-load-balancer-controller | grep Running | wc -l"
+  register: checkAwsLoadBalancerControllerStatus
+  until: checkAwsLoadBalancerControllerStatus.stdout == "1"
+  retries: 30
+  delay: 10
+  when: changeStatusAwsLoadBalancerControllerTrue.changed
+
+# - name: Delete AWS Load Balancer Controller & Cert Manager Deploy
+#   shell: "kubectl delete deploy -n kube-system {{ item }}"
+#   loop:
+#     - "aws-load-balancer-controller"
+#     - "cert-manager"
+#     - "cert-manager-cainjector"
+#     - "cert-manager-webhook"
+#   when: not awsLoadBalancerController and not checkAwsLoadBalancerControllerIamPolicyExists.failed
+
+# - name: Delete AWS Load Balancer Controller & Cert Manager Serivce
+#   shell: "kubectl delete svc -n kube-system {{ item }}"
+#   loop:
+#     - "aws-load-balancer-webhook-service"
+#     - "cert-manager"
+#     - "cert-manager-webhook"
+#   when: not awsLoadBalancerController and not checkAwsLoadBalancerControllerIamPolicyExists.failed
+
+# - name: Delete AWS LoadBalancerController IAM Policy
+#   shell: "aws iam delete-policy --policy-arn arn:aws:iam::{{ getAccountID.stdout }}:policy/AWSLoadBalancerControllerIAMPolicy"
+#   when: not awsLoadBalancerController and not checkAwsLoadBalancerControllerIamPolicyExists.failed

@@ -1,28 +1,35 @@
 - name: Apply dns-controller deployment
   shell: "kubectl apply -f dns-controller.yaml"
 
-- name: Check externaldns exists
-  shell: "cat {{ cluster_name }}.yaml | grep externalDns | wc -l"
-  register: checkExternaldnsExists
+- name: Check DNS Controller
+  shell: "kubectl get pods -n kube-system -l k8s-app=external-dns | grep Running | wc -l"
+  register: checkDnsContollerStatus
+  until: checkDnsContollerStatus.stdout == "1"
+  retries: 30
+  delay: 10
 
-- name: Edit Kops Cluster Config file for externaldns 
-  lineinfile:
-    path: "{{ cluster_name }}.yaml"
-    state: absent
-    line: "{{ item }}"
-  loop:
-    - "  externalDns:"
-    - "    provider: external-dns"
-  when: checkExternaldnsExists.stdout == '1'
+# - name: Check externaldns exists
+#   shell: "cat {{ cluster_name }}.yaml | grep externalDns | wc -l"
+#   register: checkExternaldnsExists
 
-- name: Replace Kops Cluster Config
-  shell: "kops replace -f {{ cluster_name }}.yaml --state=s3://{{ s3_name }}"
+# - name: Edit Kops Cluster Config file for externaldns 
+#   lineinfile:
+#     path: "{{ cluster_name }}.yaml"
+#     state: absent
+#     line: "{{ item }}"
+#   loop:
+#     - "  externalDns:"
+#     - "    provider: external-dns"
+#   when: checkExternaldnsExists.stdout == '1'
 
-- name: Update Kops Cluster Config
-  shell: "kops update cluster --state=s3://{{ s3_name }} --yes && sleep 3"
+# # - name: Replace Kops Cluster Config
+# #   shell: "kops replace -f {{ cluster_name }}.yaml --state=s3://{{ s3_name }}"
 
-- name: Rolling-update Kops Cluster
-  shell: "kops rolling-update cluster --state=s3://{{ s3_name }}"
+# # - name: Update Kops Cluster Config
+# #   shell: "kops update cluster --state=s3://{{ s3_name }} --yes && sleep 3"
+
+# # - name: Rolling-update Kops Cluster
+# #   shell: "kops rolling-update cluster --state=s3://{{ s3_name }}"
 
 - name: Delete external-dns deployment
   shell: "kubectl delete deploy external-dns -n kube-system"

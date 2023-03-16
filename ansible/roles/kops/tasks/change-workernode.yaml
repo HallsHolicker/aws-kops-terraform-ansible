@@ -23,7 +23,7 @@
 
 - name : Get KOPS Cluster Info
   shell: "kops --state=s3://{{ s3_name }} get all"
-  register: getKopsClusterInfo
+  register: chagneGetKopsClusterInfo
 
 - debug: 
-    msg: "KOPS Cluster Information\n{{ getKopsClusterInfo.stdout }}"
+    msg: "KOPS Cluster Information\n{{ chagneGetKopsClusterInfo.stdout }}"

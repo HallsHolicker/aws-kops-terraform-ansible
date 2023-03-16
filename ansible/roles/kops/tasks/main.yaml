@@ -21,8 +21,8 @@
 - import_tasks: install-externaldns.yaml
   when: RunType == "install-externaldns"
 
-- import_tasks: delete-externaldns.yaml
-  when: RunType == "delete-externaldns"
+- import_tasks: install-awslbcontroller.yaml
+  when: RunType == "install-awslbcontroller"
 
 - import_tasks: update-kops.yaml
   when: RunType == "update-kops"

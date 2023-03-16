@@ -2,7 +2,7 @@ kops_version: ""
 region: ap-northeast-2
 begin_master_size: t3.medium
 begin_master_count: 1
-begin_node_size: t3.medium
+begin_node_size: c5d.large #t3.medium
 begin_node_count: 2
 network_cidr: 172.30.0.0/16
 cluster_name: hallsholicker.com
