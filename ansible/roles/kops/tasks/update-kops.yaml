@@ -1,7 +1,7 @@
 - include_vars: update.yaml
 
 - pause:
-    prompt: "What do you want to update: [workerNodeSize, nodeLocalDNSCache]"
+    prompt: "What do you want to update: [workerNodeSize, nodeLocalDNSCache, maxPods]"
   register: updateInfo
 
 - import_tasks: change-workernode.yaml
@@ -9,3 +9,6 @@
 
 - import_tasks: change-nodelocaldns.yaml
   when: updateInfo.user_input == "nodeLocalDNSCache"
+
+- import_tasks: change-maxpods.yaml
+  when: updateInfo.user_input == "maxPods"

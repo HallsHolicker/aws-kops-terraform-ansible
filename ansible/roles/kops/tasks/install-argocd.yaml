@@ -1,0 +1,21 @@
+- name: Install Argocd helm
+  shell: 'helm repo add argo https://argoproj.github.io/argo-helm && helm repo update'
+
+- name: Create Argocd Namespace
+  shell: "kubectl create ns argocd"
+
+- name: Install Argocd
+  shell: "helm install argocd argo/argo-cd --set server.service.type=LoadBalancer --namespace argocd --version 5.19.14"
+
+- name: Annotaion externaldns
+  shell: "kubectl annotate service -n argocd argocd-server \"external-dns.alpha.kubernetes.io/hostname=argocd.{{ cluster_name }}\""
+
+- name: Check Admin Password
+  shell: "kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath=\"{.data.password}\" | base64 -d"
+  register: getAdminPassword
+  until: getAdminPassword.stdout != ''
+  retries: 18
+  delay: 10
+
+- debug: 
+    msg: "admin Password\n{{ getAdminPassword.stdout }}"

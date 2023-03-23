@@ -1,0 +1,56 @@
+- name: Install yq
+  shell: "wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && chmod +x /usr/bin/yq"
+
+- name: Get ACM Arn
+  shell: 'aws acm list-certificates --query "CertificateSummaryList[].CertificateArn[]" --output text'
+  register: getACMArn
+
+- name: Install Gitlab helm
+  shell: 'helm repo add gitlab https://charts.gitlab.io/ && helm repo update'
+
+- name: Fetch Gitlab version
+  shell: 'helm fetch gitlab/gitlab --untar --version 6.8.1'
+
+- name: Config Gitlab yaml
+  shell: "{{ item }}"
+  loop:
+    - "yq -i '.global.hosts.domain = \"{{ cluster_name }}\"' ~/gitlab/values.yaml"
+    - "yq -i '.global.ingress.tls = \"chagne\"' ~/gitlab/values.yaml"
+    - "yq -i '.global.ingress.annotations = \"change\"' ~/gitlab/values.yaml"
+
+- name: Config Gitlab yaml
+  lineinfile:
+    path: '~/gitlab/values.yaml'
+    regexp: "{{ item.src }}"
+    line: "{{ item.dst }}"
+  loop:
+    - { src: "    tls: chagne", dst: "    tls:\n     enabled: false" }
+    - { src: "^    provider: nginx", dst: "    provider: aws\n    class: alb" }
+    - { src: "^    configureCertmanager: true", dst: "    configureCertmanager: false" }
+
+- name: Config Gitlab yaml
+  lineinfile:
+    path: '~/gitlab/values.yaml'
+    insertafter: "^    annotations: change"
+    line: "{{ item }}"
+  loop:
+    - "      alb.ingress.kubernetes.io/scheme: internet-facing"
+    - "      alb.ingress.kubernetes.io/target-type: ip"
+    - "      alb.ingress.kubernetes.io/listen-ports: '[{\"HTTPS\":443}, {\"HTTP\":80}]'"
+    - "      alb.ingress.kubernetes.io/certificate-arn: {{ getACMArn.stdout }}"
+    - "      alb.ingress.kubernetes.io/success-codes: 200-399"
+    - "      alb.ingress.kubernetes.io/group.name: \"gitlab\""
+
+- name: Config Gitlab yaml
+  lineinfile:
+    path: '~/gitlab/values.yaml'
+    regexp: "^    annotations: change"
+    line: "{{ item }}"
+  loop:
+    - "    annotations:"
+
+- name: Create Gitlab Namespace
+  shell: "kubectl create ns gitlab"
+
+- name: Install Gitlab
+  shell: "helm install gitlab gitlab/gitlab -f ~/gitlab/values.yaml --set certmanager.install=false --set nginx-ingress.enabled=false --set prometheus.install=false --set gitlab-runner.install=false --namespace gitlab --version 6.8.4"

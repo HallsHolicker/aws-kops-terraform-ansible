@@ -2,3 +2,5 @@ targetZone: nodes-ap-northeast-2a
 workerMinSize: 1
 workerMaxSize: 1
 nodeLocalDNSCache: false
+maxPods: false
+maxPodsCount: 100

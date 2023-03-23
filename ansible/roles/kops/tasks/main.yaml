@@ -19,12 +19,21 @@
   when: RunType == "info-cluster" or RunType == "create-cluster"
 
 - import_tasks: install-externaldns.yaml
-  when: RunType == "install-externaldns"
+  when: RunType == "install-externaldns" or RunType == "install-harbor" or RunType == "install-gitlab" or RunType == "install-argocd"
 
 - import_tasks: install-awslbcontroller.yaml
-  when: RunType == "install-awslbcontroller"
+  when: RunType == "install-awslbcontroller" or RunType == "install-harbor" or RunType == "install-gitlab" or RunType == "install-argocd"
 
 - import_tasks: update-kops.yaml
   when: RunType == "update-kops"
+
+- import_tasks: install-harbor.yaml
+  when: RunType == "install-harbor"
+
+- import_tasks: install-gitlab.yaml
+  when: RunType == "install-gitlab"
+
+- import_tasks: install-argocd.yaml
+  when: RunType == "install-argocd"
 
 - import_tasks: view.yaml

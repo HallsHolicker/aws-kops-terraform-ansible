@@ -57,7 +57,7 @@
 #   shell: "kubectl delete deploy dns-controller -n kube-system"
 
 - name: Check External DNS
-  shell: "kubectl get pods -n kube-system -l app.kubernetes.io/name=external-dns | grep Running | wc -l"
+  shell: "kubectl get pods -n kube-system -l k8s-app=external-dns | grep Running | wc -l"
   register: checkExternalDnsStatus
   until: checkExternalDnsStatus.stdout == "1"
   retries: 30

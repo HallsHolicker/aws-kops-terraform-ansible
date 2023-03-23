@@ -30,6 +30,7 @@ Terraform을 이용하여 다음 서비스들을 배포합니다.
 
 Ansible을 이용하여 다음 작업들이 가능합니다.
 
+### kops.yaml 
 생성된 AWS Access Key 및 Secre Key는 다음 위치에 작성합니다.
 아래의 파일은 .gitignore로 git에는 올라가지 않으니 만드셔야 합니다.
 
@@ -44,7 +45,7 @@ AWS_SecretKey: <생성된 Secret Key>
 3. info-cluster: K8S 정보 ( KOPS(Cluster Info, Instance Group, Instance, Node IP), K8S(Cluster Info, Nodes, pods) )
 4. delete-cluster : 생성된 K8S 삭제
 5. install-externaldns : External DNS Addon 설치
-6. delete-externaldns : External DNS Addon 삭제
+6. install-awslbcontroller : AWS Load Balancer Controller Addon 설치
 7. update-kops : Kops 설정 업데이트 ( 업데이트에 사용되는 변수들은 다음 경로의 파일을 사용합니다. roles/kops/vars/update.yaml)
 
    A. workerNodeSize : Worker Node Size 변경
@@ -60,6 +61,21 @@ AWS_SecretKey: <생성된 Secret Key>
      nodeLocalDNSCache: true or false
      ```
    C. maxPod: Max Pod 변경 ( 예정 )
+
+8. install-harbor : Harbor 설치
+  - region의 ACM에 인증서가 미리 발급되어 있어야 합니다.
+  - Aws Load Balancer Controller 가 설치 되어 있어야 합니다.
+  - ExternalDNS 가 설치 되어 있어야 합니다.
+
+9. install-gitlab : Gitlab 설치
+  - region의 ACM에 인증서가 미리 발급되어 있어야 합니다.
+  - Aws Load Balancer Controller 가 설치 되어 있어야 합니다.
+  - ExternalDNS 가 설치 되어 있어야 합니다.
+
+10. install-argocd : Argocd 설치
+  - region의 ACM에 인증서가 미리 발급되어 있어야 합니다.
+  - Aws Load Balancer Controller 가 설치 되어 있어야 합니다.
+  - ExternalDNS 가 설치 되어 있어야 합니다.
 
 ## 실행 순서
 

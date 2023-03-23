@@ -1,0 +1,39 @@
+- name: Get ACM Arn
+  shell: 'aws acm list-certificates --query "CertificateSummaryList[].CertificateArn[]" --output text'
+  register: getACMArn
+
+- name: Install Harbor helm
+  shell: 'helm repo add harbor https://helm.goharbor.io'
+
+- name: Fetch Harbor version
+  shell: 'helm fetch harbor/harbor --untar --version 1.11.0'
+
+- name: Config Harbor yaml
+  lineinfile:
+    path: '~/harbor/values.yaml'
+    regexp: "{{ item.src }}"
+    line: "{{ item.dst }}"
+  loop:
+    - { src: '^    certSource: auto', dst: '    certSource: none' }
+    - { src: '^      core: core.harbor.domain', dst: '      core: harbor.{{ cluster_name }}' }
+    - { src: '^      notary: notary.harbor.domain', dst: '      notary: notary.{{ cluster_name }}' }
+    - { src: '^    controller: default', dst: '    controller: alb' }
+    - { src: '^    className: ""', dst: '    className: alb' }
+    - { src: '^externalURL: *', dst: 'externalURL: https://harbor.{{ cluster_name }}' }
+
+- name: Config Harbor yaml
+  lineinfile:
+    path: '~/harbor/values.yaml'
+    insertafter: "      nginx.ingress.kubernetes.io/proxy-body-size: \"0\""
+    line: "{{ item }}"
+  loop:
+    - "      alb.ingress.kubernetes.io/scheme: internet-facing"
+    - "      alb.ingress.kubernetes.io/target-type: ip"
+    - "      alb.ingress.kubernetes.io/listen-ports: '[{\"HTTPS\":443}, {\"HTTP\":80}]'"
+    - "      alb.ingress.kubernetes.io/certificate-arn: {{ getACMArn.stdout }}"
+
+- name: Create Harbor Namespace
+  shell: "kubectl create ns harbor"
+
+- name: Install Harbor
+  shell: "helm install harbor harbor/harbor -f ~/harbor/values.yaml --namespace harbor --version 1.11.0"

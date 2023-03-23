@@ -1,0 +1,66 @@
+- name: Download Kops Cluster Config File
+  shell: "kops get cluster --state=s3://{{ s3_name }} -o yaml > {{ cluster_name }}.yaml"
+
+- name: Check maxPods exists
+  shell: "cat {{ cluster_name }}.yaml | grep maxPods | wc -l"
+  register: checkMaxPodsExists
+
+- name: Edit Kops Cluster Config file for maxPods 
+  lineinfile:
+    path: "{{ cluster_name }}.yaml"
+    insertafter: "    amazonvpc:"
+    line: "{{ item }}"
+  loop:
+    - "        value: \"true\""
+    - "      - name: ENABLE_PREFIX_DELEGATION"
+    - "      env:"
+  when: checkMaxPodsExists.stdout == '0' and maxPods
+
+- name: Edit Kops Cluster Config file for maxPods 
+  lineinfile:
+    path: "{{ cluster_name }}.yaml"
+    regexp: "    amazonvpc: {}"
+    line: "    amazonvpc:"
+  when: checkMaxPodsExists.stdout == '0' and maxPods
+
+- name: Edit Kops Cluster Config file for maxPods 
+  lineinfile:
+    path: "{{ cluster_name }}.yaml"
+    insertafter: "  kubelet:"
+    line: "{{ item }}"
+  loop:
+    - "    maxPods: {{ maxPodsCount }}"
+  when: checkMaxPodsExists.stdout == '0' and maxPods
+  register: changeStatusMaxPodsTrue
+
+- name: Edit Kops Cluster Config file for maxPods 
+  lineinfile:
+    path: "{{ cluster_name }}.yaml"
+    regexp: "    amazonvpc:"
+    line: "    amazonvpc: {}"
+  when: checkMaxPodsExists.stdout == '1' and maxPods
+
+- name: Edit Kops Cluster Config file for maxPods 
+  lineinfile:
+    path: "{{ cluster_name }}.yaml"
+    state: absent
+    regexp: "{{ item }}"
+  loop:
+    - "    maxPods: {{ maxPodsCount }}"
+    - "        value: \"true\""
+    - "      - name: ENABLE_PREFIX_DELEGATION"
+    - "      env:"
+  when: checkMaxPodsExists.stdout == '1' and not maxPods
+  register: changeStatusMaxPodsFalse
+
+- name: Replace Kops Cluster Config
+  shell: "kops replace -f {{ cluster_name }}.yaml --state=s3://{{ s3_name }}"
+  when: changeStatusMaxPodsTrue.changed or changeStatusMaxPodsFalse.changed
+
+- name: Update Kops Cluster Config
+  shell: "kops update cluster --state=s3://{{ s3_name }} --yes && sleep 3"
+  when: changeStatusMaxPodsTrue.changed or changeStatusMaxPodsFalse.changed
+
+- name: Rolling-update Kops Cluster
+  shell: "kops rolling-update cluster --state=s3://{{ s3_name }} --yes"
+  when: changeStatusMaxPodsTrue.changed or changeStatusMaxPodsFalse.changed
