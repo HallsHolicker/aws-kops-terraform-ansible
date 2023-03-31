@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kwatch
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kwatch
+  namespace: kwatch
+data:
+  config.yaml: |
+    alert:
+      slack:
+        webhook: {{ slack_webhook }}
+        #title:
+        #text:
+    pvcMonitor:
+      enabled: true
+      interval: 5
+      threshold: 70

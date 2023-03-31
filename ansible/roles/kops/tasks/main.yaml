@@ -19,10 +19,10 @@
   when: RunType == "info-cluster" or RunType == "create-cluster"
 
 - import_tasks: install-externaldns.yaml
-  when: RunType == "install-externaldns" or RunType == "install-harbor" or RunType == "install-gitlab" or RunType == "install-argocd"
+  when: RunType == "install-externaldns" or RunType == "install-harbor" or RunType == "install-gitlab" or RunType == "install-argocd" or RunType == "install-prometheus"
 
 - import_tasks: install-awslbcontroller.yaml
-  when: RunType == "install-awslbcontroller" or RunType == "install-harbor" or RunType == "install-gitlab" or RunType == "install-argocd"
+  when: RunType == "install-awslbcontroller" or RunType == "install-harbor" or RunType == "install-gitlab" or RunType == "install-argocd" or RunType == "install-prometheus"
 
 - import_tasks: update-kops.yaml
   when: RunType == "update-kops"
@@ -35,5 +35,17 @@
 
 - import_tasks: install-argocd.yaml
   when: RunType == "install-argocd"
+
+- import_tasks: install-prometheus.yaml
+  when: RunType == "install-prometheus"
+
+- import_tasks: install-kwatch.yaml
+  when: RunType == "install-kwatch"
+
+- import_tasks: install-loki.yaml
+  when: RunType == "install-loki"
+
+# - import_tasks: install-promtail.yaml
+#   when: RunType == "install-promtail"
 
 - import_tasks: view.yaml

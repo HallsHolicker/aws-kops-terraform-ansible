@@ -1,0 +1,10 @@
+- name: Create kwatch config yaml
+  template: 
+    src: kwatch-config.yaml
+    dest: kwatch-config.yaml
+
+- name: Apply kwatch config
+  shell: "kubectl apply -f kwatch-config.yaml"
+
+- name: Install kwatch
+  shell: "helm uninstall -n monitoring kube-prometheus-stack"

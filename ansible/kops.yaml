@@ -5,7 +5,7 @@
   become_flags: 'su - root /bin/bash -c'
   vars_prompt:
     - name: RunType
-      prompt: "What do you want to run type: [install-kops, create-cluster, delete-cluster, info-cluster, install-externaldns, install-awslbcontroller, update-kops, install-harbor, install-gitlab, install-argocd]"
+      prompt: "What do you want to run type:\n - install-kops \n - create-cluster \n - delete-cluster \n - info-cluster \n - install-externaldns \n - install-awslbcontroller \n - update-kops \n - install-harbor \n - install-gitlab \n - install-argocd \n - install-prometheus\n - install-kwatch \n - install-loki \n"
       private: no
   roles:
     - kops

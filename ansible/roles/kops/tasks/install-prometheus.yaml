@@ -1,0 +1,17 @@
+- name: Get ACM Arn
+  shell: 'aws acm list-certificates --query "CertificateSummaryList[].CertificateArn[]" --output text'
+  register: getACMArn
+
+- name: Install Prometheus helm repo
+  shell: 'helm repo add prometheus-community https://prometheus-community.github.io/helm-charts'
+
+- name: Create Monitor Values
+  template: 
+    src: monitor-values.yaml
+    dest: monitor-values.yaml
+
+- name: Create Monitoring Namespace
+  shell: "kubectl create ns monitoring"
+
+- name: Install Prometheus
+  shell: "helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack --version 45.7.1 --set prometheus.prometheusSpec.scrapeInterval='15s' --set prometheus.prometheusSpec.evaluationInterval='15s' -f monitor-values.yaml --namespace monitoring"

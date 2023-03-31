@@ -1,0 +1,21 @@
+# - name: Install Loki helm repo
+#   shell: 'helm repo add grafana https://grafana.github.io/helm-charts'
+
+# - name: Create Loki config Values
+#   copy: 
+#     src: loki-values.yaml
+#     dest: loki-values.yaml
+
+# - name: Create Loki Namespace
+#   shell: "kubectl create ns loki"
+
+# - name: Install Loki
+#   shell: "helm install loki grafana/loki --version 2.16.0 -f loki-values.yaml --namespace loki"
+
+- name: Create Promtail config Values
+  copy: 
+    src: promtail-values.yaml
+    dest: promtail-values.yaml
+
+- name: Install Promtail
+  shell: "helm install promtail grafana/promtail --version 6.0.0 -f promtail-values.yaml --namespace loki"

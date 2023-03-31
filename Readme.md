@@ -64,18 +64,31 @@ AWS_SecretKey: <생성된 Secret Key>
 
 8. install-harbor : Harbor 설치
   - region의 ACM에 인증서가 미리 발급되어 있어야 합니다.
-  - Aws Load Balancer Controller 가 설치 되어 있어야 합니다.
-  - ExternalDNS 가 설치 되어 있어야 합니다.
+  - Aws Load Balancer Controller 가 설치됩니다.
+  - ExternalDNS 가 설치됩니다.
 
 9. install-gitlab : Gitlab 설치
   - region의 ACM에 인증서가 미리 발급되어 있어야 합니다.
-  - Aws Load Balancer Controller 가 설치 되어 있어야 합니다.
-  - ExternalDNS 가 설치 되어 있어야 합니다.
+  - Aws Load Balancer Controller 가 설치됩니다.
+  - ExternalDNS 가 설치됩니다.
 
 10. install-argocd : Argocd 설치
   - region의 ACM에 인증서가 미리 발급되어 있어야 합니다.
-  - Aws Load Balancer Controller 가 설치 되어 있어야 합니다.
-  - ExternalDNS 가 설치 되어 있어야 합니다.
+  - Aws Load Balancer Controller 가 설치됩니다.
+  - ExternalDNS 가 설치됩니다.
+
+11. install-prometheus: Prometheus & AlertManager & Grafana 설치
+  - region의 ACM에 인증서가 미리 발급되어 있어야 합니다.
+  - Aws Load Balancer Controller 가 설치됩니다.
+  - ExternalDNS 가 설치됩니다.
+
+12. install-kwatch : Kwatch 설치
+  - secret yaml에 다음 정보가 있어야 합니다.
+  ```
+  slack_webhook: <Slack Webhook URL>
+  ```
+
+13. install-loki : Loki & Promtail 설치
 
 ## 실행 순서
 

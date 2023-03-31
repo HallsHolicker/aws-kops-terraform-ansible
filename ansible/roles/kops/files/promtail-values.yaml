@@ -1,0 +1,10 @@
+serviceMonitor:
+  enabled: true
+config:
+  serverPort: 3101
+  clients:
+    - url: http://loki-headless:3100/loki/api/v1/push
+#defaultVolumes:
+#  - name: pods
+#    hostPath:
+#      path: /var/log/pods
