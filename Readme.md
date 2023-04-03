@@ -45,29 +45,29 @@ AWS_SecretKey: <생성된 Secret Key>
 2. create-cluster : KOPS를 이용한 K8S 생성
 3. install-addons : K8S Plugin 설치
 
-  A. krew : k8s 패키지 매니저
+    A. krew : k8s 패키지 매니저
 
-  B. kube-ctx : 멀티 클러스터에서 클러스터간 전환을 쉽게 해주는 플러그인
+    B. kube-ctx : 멀티 클러스터에서 클러스터간 전환을 쉽게 해주는 플러그인
 
-  C. kube-ns : k8s에서 namespace 전환을 쉽게 해주는 플러그인
+    C. kube-ns : k8s에서 namespace 전환을 쉽게 해주는 플러그인
 
-  D. df-pv : k8s에서 PV가 실제로 사용하는 Disk 사용량을 쉽게 볼 수 있는 플러그인
+    D. df-pv : k8s에서 PV가 실제로 사용하는 Disk 사용량을 쉽게 볼 수 있는 플러그인
 
-  E. get-all : k8s의 모든 리소스를 확인 할 수 있는 플러그인 ( 기본적인 get all은 ingress는 보여주지 않음 )
+    E. get-all : k8s의 모든 리소스를 확인 할 수 있는 플러그인 ( 기본적인 get all은 ingress는 보여주지 않음 )
 
-  F. ktop : linux의 top처럼 k8s 자원을 확인 할 수 있는 플러그인
+    F. ktop : linux의 top처럼 k8s 자원을 확인 할 수 있는 플러그인
 
-  G. neat : yaml 형식을 가독성있게 출력해 주는 플러그인
+    G. neat : yaml 형식을 가독성있게 출력해 주는 플러그인
 
-  H. oomd : Out of Memory로 죽은 pod 정보를 보여주는 플러그인
+    H. oomd : Out of Memory로 죽은 pod 정보를 보여주는 플러그인
 
-  I. view-secret : k8s secret 정보를 복호화 해주는 플러그인
+    I. view-secret : k8s secret 정보를 복호화 해주는 플러그인
 
-  J. community-images : 이미지 저장소 신규 변경 점검 플러그인
+    J. community-images : 이미지 저장소 신규 변경 점검 플러그인
 
-  K. kube-ps1 : bash or zsh 환경에서 context와 namespace를 표시해주는 플러그인
-  
-  L. kubescape : DevOps를 위한 k8s 보안 플랫폼
+    K. kube-ps1 : bash or zsh 환경에서 context와 namespace를 표시해주는 플러그인
+
+    L. kubescape : DevOps를 위한 k8s 보안 플랫폼
 
 4. info-cluster: K8S 정보 ( KOPS(Cluster Info, Instance Group, Instance, Node IP), K8S(Cluster Info, Nodes, pods) )
 5. delete-cluster : 생성된 K8S 삭제
