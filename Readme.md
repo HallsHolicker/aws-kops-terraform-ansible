@@ -34,8 +34,9 @@ Ansible을 이용하여 다음 작업들이 가능합니다.
 생성된 AWS Access Key 및 Secre Key는 다음 위치에 작성합니다.
 아래의 파일은 .gitignore로 git에는 올라가지 않으니 만드셔야 합니다.
 
-roles/kops/vars/.secret
-roles/test-deploy/vars/.secret
+`roles/kops/vars/.secret`
+
+`roles/test-deploy/vars/.secret`
 ```
 AWS_AccessKey: <생성된 Access Key>
 AWS_SecretKey: <생성된 Secret Key>
