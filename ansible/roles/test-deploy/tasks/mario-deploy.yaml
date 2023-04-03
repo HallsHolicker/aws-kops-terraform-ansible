@@ -1,0 +1,33 @@
+- name: Check Running Mario
+  shell: "kubectl get pods -l app=mario | gerp Running | wc -l"
+  register: checkMarioStatus
+
+- name: Copy Mario manifest
+  copy:
+    src: mario.yaml
+    dest: mario.yaml
+  when: checkMarioStatus.stdout == "0" or checkMarioStatus.stdout == "No resources found in default namespace."
+
+- name: Deploy Mario
+  shell: "kubectl apply -f mario.yaml"
+  when: checkMarioStatus.stdout == "0" or checkMarioStatus.stdout == "No resources found in default namespace."
+
+- name: Check Running Mario Pods
+  shell: "kubectl get pods -l app=mario | grep Running | wc -l"
+  register: checkMarioPodsRunningStatus
+  until: checkMarioPodsRunningStatus.stdout | int >= 1
+  retries: 30
+  delay: 10
+  when: checkMarioStatus.stdout == "0" or checkMarioStatus.stdout == "No resources found in default namespace."
+
+- name: Check Running Mario svc
+  shell: "kubectl get svc | grep mario | awk '{print $4}'"
+  register: checkMarioSvcStatus
+  until : checkMarioSvcStatus.stdout != "<pending>"
+  retries: 30
+  delay: 10
+  when: checkMarioStatus.stdout == "0" or checkMarioStatus.stdout == "No resources found in default namespace."
+
+- debug:
+    msg: "Yon can connect to mario. Mario URL = http://{{ checkMarioSvcStatus.stdout }}"
+  when: checkMarioStatus.stdout == "0" or checkMarioStatus.stdout == "No resources found in default namespace."

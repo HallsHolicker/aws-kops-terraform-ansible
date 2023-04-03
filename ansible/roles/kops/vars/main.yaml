@@ -9,4 +9,6 @@ cluster_name: hallsholicker.com
 kubernetes_version: 1.24.10
 s3_name: hallsholicker-kops
 
+weave_scope_version: 1.13.2
+krew_version: 0.4.3
 

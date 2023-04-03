@@ -1,0 +1,18 @@
+- name: Deploy Weave Scope
+  shell: "kubectl apply -f https://github.com/weaveworks/scope/releases/download/v{{ weave_scope_version }}/k8s-scope.yaml"
+
+- name: Change Weave Scope Load Balancer
+  shell: "kubectl patch svc -n weave weave-scope-app -p '{\"spec\":{\"type\":\"LoadBalancer\"}}'"
+
+- name: Add annotation external-dns
+  shell: "kubectl annotate service weave-scope-app -n weave \"external-dns.alpha.kubernetes.io/hostname=weave.{{ cluster_name }}\""
+
+- name: Check Weave External DNS
+  shell: " dig +short weave.{{ cluster_name }} | wc -l"
+  register: checkWeaveExeternalDNSStatus
+  until: checkWeaveExeternalDNSStatus.stdout != "0"
+  retries: 60
+  delay: 10
+
+- debug:
+    msg: " Yon can connect to weave-scope web with externaldns. Weave-scope URL = http://weave.{{ cluster_name }}"

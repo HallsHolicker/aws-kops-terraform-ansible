@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: netshoot-network-dump
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: netshoot-network-dump
+  template:
+    metadata:
+      labels:
+        app: netshoot-network-dump
+    spec:
+      containers:
+      - name: netshoot-network-dump
+        image: nicolaka/netshoot
+        command: ["tail"]
+        args: ["-f", "/dev/null"]
+      terminationGracePeriodSeconds: 0

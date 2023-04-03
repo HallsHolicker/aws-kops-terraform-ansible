@@ -1,0 +1,19 @@
+- import_tasks: mario-deploy.yaml
+
+- name: Check annotaion Mario Service
+  shell: "kubectl describe svc mario | grep Annotations | grep external-dns | awk '{print $3}'"
+  register: checkAnnotaionMarioSvc
+
+- name: Add annotaion Mario service
+  shell: "kubectl annotate service mario \"external-dns.alpha.kubernetes.io/hostname=mario.{{ cluster_name }}\""
+  when: checkAnnotaionMarioSvc.stdout != "mario."+cluster_name
+
+- name: Check Mario External DNS
+  shell: "sleep 5 && dig +short mario.{{ cluster_name }} | wc -l"
+  register: checkMarioExeternalDNSStatus
+  until: checkMarioExeternalDNSStatus.stdout != "0"
+  retries: 60
+  delay: 10
+
+- debug:
+    msg: " Yon can connect to mario with externaldns. Mario URL = http://mario.{{ cluster_name }}"

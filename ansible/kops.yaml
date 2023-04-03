@@ -5,8 +5,11 @@
   become_flags: 'su - root /bin/bash -c'
   vars_prompt:
     - name: RunType
-      prompt: "What do you want to run type:\n - install-kops \n - create-cluster \n - delete-cluster \n - info-cluster \n - install-externaldns \n - install-awslbcontroller \n - update-kops \n - install-harbor \n - install-gitlab \n - install-argocd \n - install-prometheus\n - install-kwatch \n - install-loki \n"
+      prompt: "What do you want to run type:\n - install-kops \n - create-cluster \n - install-addons \n - delete-cluster \n - info-cluster \n - install-externaldns \n - install-awslbcontroller \n - update-kops \n - install-weavescope \n - install-harbor \n - install-gitlab \n - install-argocd \n - install-prometheus\n - install-kwatch \n - install-loki \n - install-polaris \n - test-deploy \n"
       private: no
   roles:
-    - kops
+    - role: kops
+      when: RunType != "test-deploy"
+    - role: test-deploy
+      when: RunType == "test-deploy"
     

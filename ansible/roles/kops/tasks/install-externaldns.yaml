@@ -1,28 +1,28 @@
-# - name: Copy externaldns-aws-r53-policy.json
-#   copy:
-#     src: externaldns-aws-r53-policy.json
-#     dest: /tmp/externaldns-aws-r53-policy.json
+- name: Copy externaldns-aws-r53-policy.json
+  copy:
+    src: externaldns-aws-r53-policy.json
+    dest: /tmp/externaldns-aws-r53-policy.json
 
-# - name: Get Account ID
-#   shell: "aws sts get-caller-identity --query 'Account' --output text"
-#   register: getAccountID
+- name: Get Account ID
+  shell: "aws sts get-caller-identity --query 'Account' --output text"
+  register: getAccountID
 
-# - name: Check External DNS IAM Policy Exists
-#   shell: "aws iam get-policy --policy-arn arn:aws:iam::{{ getAccountID.stdout }}:policy/AllowExternalDNSUpdate"
-#   register: checkExternalDnsIamPolicyExists
-#   ignore_errors: true
+- name: Check External DNS IAM Policy Exists
+  shell: "aws iam get-policy --policy-arn arn:aws:iam::{{ getAccountID.stdout }}:policy/AllowExternalDNSUpdate"
+  register: checkExternalDnsIamPolicyExists
+  ignore_errors: true
 
-# - name: Create externaldns-aws-r53-policy.json
-#   shell: "aws iam create-policy --policy-name AllowExternalDNSUpdate --policy-document file:///tmp/externaldns-aws-r53-policy.json"
-#   when: checkExternalDnsIamPolicyExists.failed
+- name: Create externaldns-aws-r53-policy.json
+  shell: "aws iam create-policy --policy-name AllowExternalDNSUpdate --policy-document file:///tmp/externaldns-aws-r53-policy.json"
+  when: checkExternalDnsIamPolicyExists.failed
 
-# - name: Attach IAM Policy to master
-#   shell: "aws iam attach-role-policy --policy-arn arn:aws:iam::{{ getAccountID.stdout }}:policy/AllowExternalDNSUpdate --role-name masters.{{ cluster_name }}"
-#   # when: checkExternalDnsIamPolicyExists.failed
+- name: Attach IAM Policy to master
+  shell: "aws iam attach-role-policy --policy-arn arn:aws:iam::{{ getAccountID.stdout }}:policy/AllowExternalDNSUpdate --role-name masters.{{ cluster_name }}"
+  when: checkExternalDnsIamPolicyExists.failed
 
-# - name: Attach IAM Policy to node
-#   shell: "aws iam attach-role-policy --policy-arn arn:aws:iam::{{ getAccountID.stdout }}:policy/AllowExternalDNSUpdate --role-name nodes.{{ cluster_name }}"
-#   # when: checkExternalDnsIamPolicyExists.failed
+- name: Attach IAM Policy to node
+  shell: "aws iam attach-role-policy --policy-arn arn:aws:iam::{{ getAccountID.stdout }}:policy/AllowExternalDNSUpdate --role-name nodes.{{ cluster_name }}"
+  when: checkExternalDnsIamPolicyExists.failed
 
 - name: Download Kops Cluster Config File
   shell: "kops get cluster --state=s3://{{ s3_name }} -o yaml > {{ cluster_name }}.yaml"

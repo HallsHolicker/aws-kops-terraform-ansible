@@ -1,0 +1,51 @@
+- name: Get ACM Arn
+  shell: 'aws acm list-certificates --query "CertificateSummaryList[].CertificateArn[]" --output text'
+  register: getACMArn
+
+- name: Copy Game-2048 yaml
+  template:
+    src: game-2048.j2
+    dest: game-2048.yaml
+
+- name: Deploy Game-2048
+  shell: "kubectl apply -f game-2048.yaml"
+
+- name: Check Running Game-2048 SVC
+  shell: "kubectl get svc -n game-2048 | grep service-2048 | awk '{print $4}'"
+  register: checkGame2048ALBSvcStatus
+  until : checkGame2048ALBSvcStatus.stdout != "<pending>"
+  retries: 30
+  delay: 10
+
+- name: Get ALB name
+  shell: "kubectl get ingress -n game-2048 ingress-2048 -o jsonpath={.status.loadBalancer.ingress[0].hostname}"
+  register: getAlbDNSName
+  until : getAlbDNSName.stdout != ""
+  retries: 30
+  delay: 10
+
+- name: Waiting ALB Provisioning
+  shell: "aws elbv2 describe-load-balancers --names \"$(kubectl get ingress -n game-2048 ingress-2048 -o jsonpath={.status.loadBalancer.ingress[0].hostname} | awk -F\"-\" '{print $1\"-\"$2\"-\"$3\"-\"$4}')\" --query 'LoadBalancers[*].State.Code' --output text"
+  register: getAlbProvisioningStatus
+  until : getAlbProvisioningStatus.stdout == "active"
+  retries: 60
+  delay: 10
+
+- name: Add annotaion Game-2048 service
+  shell: "kubectl annotate service -n game-2048 service-2048 \"external-dns.alpha.kubernetes.io/hostname=albweb.{{ cluster_name }}\" --overwrite"
+  when: testInfo.user_input == "deploy-alb-externaldns"
+
+- name: Check Game-2048 External DNS
+  shell: "sleep 5 && dig +short albweb.{{ cluster_name }} | wc -l"
+  register: checkGame2048ExeternalDNSStatus
+  until: checkGame2048ExeternalDNSStatus.stdout != "0"
+  retries: 60
+  delay: 10
+  when: testInfo.user_input == "deploy-alb-externaldns"
+
+- debug:
+    msg: "Yon can connect to Game-2048.\n - Game-2048 URL = http://{{ getAlbDNSName.stdout }}\n - Game-2048 URL = https://{{ getAlbDNSName.stdout }}"
+
+- debug:
+    msg: "Yon can connect to Game-2048.\n - Game-2048 URL = http://albweb.{{ cluster_name }}\n -Game-2048 URL = https://albweb.{{ cluster_name }}"
+  when: testInfo.user_input == "deploy-alb-externaldns"

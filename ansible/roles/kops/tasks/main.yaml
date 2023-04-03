@@ -12,6 +12,9 @@
 - import_tasks: create-cluster.yaml
   when: RunType == "create-cluster"
 
+- import_tasks: install-addons.yaml
+  when: RunType == "install-addons"
+
 - import_tasks: delete-cluster.yaml
   when: RunType == "delete-cluster"
 
@@ -26,6 +29,9 @@
 
 - import_tasks: update-kops.yaml
   when: RunType == "update-kops"
+
+- import_tasks: install-weavescope.yaml
+  when: RunType == "install-weavescope"
 
 - import_tasks: install-harbor.yaml
   when: RunType == "install-harbor"
@@ -45,7 +51,7 @@
 - import_tasks: install-loki.yaml
   when: RunType == "install-loki"
 
-# - import_tasks: install-promtail.yaml
-#   when: RunType == "install-promtail"
+- import_tasks: install-polaris.yaml
+  when: RunType == "install-polaris"
 
 - import_tasks: view.yaml

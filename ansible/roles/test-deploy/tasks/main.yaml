@@ -1,0 +1,20 @@
+- include_vars: .secret
+
+- pause:
+    prompt: "What do you want to deploy:\n - mario-deploy \n - mario-deploy-with-externaldns \n - netshoot-network-dump \n - deploy-with-nlb-http \n - deploy-with-nlb-https\n - deploy-with-nlb-proxyprotocol \n - deploy-alb \n - deploy-alb-externaldns \n"
+  register: testInfo
+
+- import_tasks: mario-deploy.yaml
+  when: testInfo.user_input == "mario-deploy"
+
+- import_tasks: mario-deploy-with-externaldns.yaml
+  when: testInfo.user_input == "mario-deploy-with-externaldns"
+
+- import_tasks: netshoot-network-dump.yaml
+  when: testInfo.user_input == "netshoot-network-dump"
+
+- import_tasks: deploy-nlb.yaml
+  when: testInfo.user_input == "deploy-with-nlb-http" or testInfo.user_input == "deploy-with-nlb-https" or testInfo.user_input == "deploy-with-nlb-proxyprotocol"
+
+- import_tasks: deploy-alb.yaml
+  when: testInfo.user_input == "deploy-alb" or testInfo.user_input == "deploy-alb-externaldns"

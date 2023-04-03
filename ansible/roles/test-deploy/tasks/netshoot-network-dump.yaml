@@ -1,0 +1,21 @@
+- name: Copy Netshoot-network-dump manifest
+  copy:
+    src: netshoot-network-dump.yaml
+    dest: netshoot-network-dump.yaml
+
+- name: Deploy Netshoot-network-dump
+  shell: "kubectl apply -f netshoot-network-dump.yaml"
+
+- name: Check Running Netshoot-network-dump
+  shell: "kubectl get pod -l app=netshoot-network-dump | grep Running | wc -l"
+  register: checkNetshootNetworkDumpRunningStatus
+  until: checkNetshootNetworkDumpRunningStatus.stdout == "2"
+  retries: 30
+  delay: 10
+
+- name: Get Netshoot-network-dump Pod Info
+  shell: "kubectl get pod -l app=netshoot-network-dump -o wide"
+  register: getNetshootNetworkDumpPodInfo
+
+- debug:
+    msg: "Netshoot-network-dump Pod Information \n {{ getNetshootNetworkDumpPodInfo.stdout }}"

@@ -1,0 +1,16 @@
+- name: Install Polaris helm repo
+  shell: 'helm repo add fairwinds-stable https://charts.fairwinds.com/stable'
+
+- name: Create Polaris config Values
+  copy: 
+    src: polaris-values.yaml
+    dest: polaris-values.yaml
+
+- name: Create polaris Namespace
+  shell: "kubectl create ns polaris"
+
+- name: Install poralis
+  shell: "helm install polaris fairwinds-stable/polaris --namespace polaris --version 5.7.2 -f polaris-values.yaml"
+
+- name: Add annotaion Polaris service
+  shell: "kubectl annotate service polaris-dashboard \"external-dns.alpha.kubernetes.io/hostname=polaris.{{ cluster_name }}\""

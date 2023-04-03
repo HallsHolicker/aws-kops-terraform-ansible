@@ -1,0 +1,125 @@
+- name: Check exists krew
+  stat:
+    path: ~/.krew/bin/kubectl-krew
+  register: checkKrewStatus
+
+- name: Download krew
+  shell: 'curl -fsSLO https://github.com/kubernetes-sigs/krew/releases/download/v{{ krew_version }}/krew-linux_amd64.tar.gz'
+  when: not checkKrewStatus.stat.exists
+
+- name: Install krew
+  shell: "tar xfvz krew-linux_amd64.tar.gz && ./krew-linux_amd64 install krew"
+  when: not checkKrewStatus.stat.exists
+
+- name: Edit Kops Cluster Config file for externaldns 
+  lineinfile:
+    path: "~/.bashrc"
+    insertafter: EOF
+    line: "export PATH=\"${PATH}:/root/.krew/bin\""
+  when: not checkKrewStatus.stat.exists
+
+- name: Check exists kube-ctx
+  shell: "kubectl krew list | grep ctx | wc -l"
+  register: checkKubeCTXStatus
+
+- name: Install kube-ctx with krew
+  shell: "kubectl krew install ctx"
+  when: checkKubeCTXStatus.stdout == "0"
+
+- name: Check exists kube-ns
+  shell: "kubectl krew list | grep ctx | wc -l"
+  register: checkKubeNSStatus
+
+- name: Install kube-ns with krew
+  shell: "kubectl krew install ns"
+  when: checkKubeNSStatus.stdout == "0"
+
+- name: Check exists df-pv
+  shell: "kubectl krew list | grep ctx | wc -l"
+  register: checkDFPVtatus
+
+- name: Install df-pv with krew
+  shell: "kubectl krew install df-pv"
+  when: checkDFPVtatus.stdout == "0"  
+
+- name: Check exists get-all
+  shell: "kubectl krew list | grep ctx | wc -l"
+  register: checkGetALLStatus
+
+- name: Install get-all with krew
+  shell: "kubectl krew install get-all"
+  when: checkGetALLStatus.stdout == "0"
+
+- name: Check exists ktop
+  shell: "kubectl krew list | grep ctx | wc -l"
+  register: checkKtopStatus
+
+- name: Install ktop with krew
+  shell: "kubectl krew install ktop"
+  when: checkKtopStatus.stdout == "0"
+
+- name: Check exists neat
+  shell: "kubectl krew list | grep ctx | wc -l"
+  register: checkNeatStatus
+
+- name: Install neat with krew
+  shell: "kubectl krew install neat"
+  when: checkNeatStatus.stdout == "0"
+
+- name: Check exists oomd
+  shell: "kubectl krew list | grep ctx | wc -l"
+  register: checkOomdStatus
+
+- name: Install oomd with krew
+  shell: "kubectl krew install oomd"
+  when: checkOomdStatus.stdout == "0"
+
+- name: Check exists view-secret
+  shell: "kubectl krew list | grep ctx | wc -l"
+  register: checkViewSecretStatus
+
+- name: Install view-secret with krew
+  shell: "kubectl krew install view-secret"
+  when: checkViewSecretStatus.stdout == "0"
+
+- name: Check exists community-images
+  shell: "kubectl krew list | grep ctx | wc -l"
+  register: checkCommunityImagesStatus
+
+- name: Install community-images with krew
+  shell: "kubectl krew install community-images"
+  when: checkCommunityImagesStatus.stdout == "0"
+
+- name: Check exists kube-ps1
+  stat:
+    path: ~/kube-ps1/kube-ps1.sh
+  register: checkKubePS1Status
+
+- name: Download kube-ps1
+  shell: "git clone https://github.com/jonmosco/kube-ps1.git /root/kube-ps1"
+  when: not checkKubePS1Status.stat.exists
+
+- name: Edit Kops Cluster Config file for externaldns 
+  lineinfile:
+    path: "~/.bashrc"
+    insertafter: EOF
+    line: "{{ item }}"
+  loop:
+    - "source /root/kube-ps1/kube-ps1.sh"
+    - "KUBE_PS1_SYMBOL_ENABLE=true"
+    - "function get_cluster_short() {"
+    - "  echo \"$1\" | cut -d . -f1"
+    - "}"
+    - "KUBE_PS1_CLUSTER_FUNCTION=get_cluster_short"
+    - "KUBE_PS1_SUFFIX=') '"
+    - "PS1='${kube_ps1}'$PS1"
+  when: not checkKubePS1Status.stat.exists
+
+- name: Check exists kubescape
+  stat:
+    path: ~/.kubescape
+  register: checkKubescapeStatus
+
+- name: Install kubescape
+  shell: "curl -s https://raw.githubusercontent.com/kubescape/kubescape/master/install.sh | /bin/bash"
+  when: not checkKubescapeStatus.stat.exists

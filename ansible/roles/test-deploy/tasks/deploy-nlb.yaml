@@ -1,0 +1,39 @@
+- name: Get ACM Arn
+  shell: 'aws acm list-certificates --query "CertificateSummaryList[].CertificateArn[]" --output text'
+  register: getACMArn
+  when: testInfo.user_input == "deploy-with-nlb-https"
+
+- name: Copy Echo-Service-Nlb yaml
+  template:
+    src: echo-service-nlb.j2
+    dest: echo-service-nlb.yaml
+
+- name: Deploy Echo-Service-NLB
+  shell: "kubectl apply -f echo-service-nlb.yaml"
+
+- name: Check Running Echo Service NLB SVC
+  shell: "kubectl get svc | grep svc-nlb-ip-type | awk '{print $4}'"
+  register: checkEchoServiceNLBSvcStatus
+  until : checkEchoServiceNLBSvcStatus.stdout != "<pending>"
+  retries: 30
+  delay: 10
+
+- name: Add annotaion Echo-Service-NLB service
+  shell: "kubectl annotate service svc-nlb-ip-type \"external-dns.alpha.kubernetes.io/hostname=nginx.{{ cluster_name }}\" --overwrite"
+  when: testInfo.user_input != "deploy-with-nlb-proxyprotocol"  
+
+- name: Check Echo Service NLB Nginx External DNS
+  shell: "sleep 5 && dig +short nginx.{{ cluster_name }} | wc -l"
+  register: checkEchoServiceNLBNginxExeternalDNSStatus
+  until: checkEchoServiceNLBNginxExeternalDNSStatus.stdout != "0"
+  retries: 60
+  delay: 10
+  when: testInfo.user_input != "deploy-with-nlb-proxyprotocol"  
+
+- debug:
+    msg: "Yon can connect to Echo Service NLB Nginx.\n - Echo Service NLB Nginx URL = http://{{ checkEchoServiceNLBSvcStatus.stdout }}\n - Echo Service NLB Nginx URL = http://nginx.{{ cluster_name }}"
+  when: testInfo.user_input != "deploy-with-nlb-proxyprotocol"  
+
+- debug:
+    msg: "Yon can connect to Echo Service NLB Nginx.\n - Echo Service NLB Nginx URL = https://{{ checkEchoServiceNLBSvcStatus.stdout }}\n - Echo Service NLB Nginx URL = https://nginx.{{ cluster_name }}"
+  when: testInfo.user_input == "deploy-with-nlb-https"

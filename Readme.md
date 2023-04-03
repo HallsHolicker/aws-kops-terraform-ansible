@@ -35,6 +35,7 @@ Ansible을 이용하여 다음 작업들이 가능합니다.
 아래의 파일은 .gitignore로 git에는 올라가지 않으니 만드셔야 합니다.
 
 roles/kops/vars/.secret
+roles/test-deploy/vars/.secret
 ```
 AWS_AccessKey: <생성된 Access Key>
 AWS_SecretKey: <생성된 Secret Key>
@@ -42,11 +43,25 @@ AWS_SecretKey: <생성된 Secret Key>
 
 1. install-kops : KOPS Client Ec2에 kubectl, kops 설치
 2. create-cluster : KOPS를 이용한 K8S 생성
-3. info-cluster: K8S 정보 ( KOPS(Cluster Info, Instance Group, Instance, Node IP), K8S(Cluster Info, Nodes, pods) )
-4. delete-cluster : 생성된 K8S 삭제
-5. install-externaldns : External DNS Addon 설치
-6. install-awslbcontroller : AWS Load Balancer Controller Addon 설치
-7. update-kops : Kops 설정 업데이트 ( 업데이트에 사용되는 변수들은 다음 경로의 파일을 사용합니다. roles/kops/vars/update.yaml)
+3. install-addons : K8S Plugin 설치
+  A. krew : k8s 패키지 매니저
+  B. kube-ctx : 멀티 클러스터에서 클러스터간 전환을 쉽게 해주는 플러그인
+  C. kube-ns : k8s에서 namespace 전환을 쉽게 해주는 플러그인
+  D. df-pv : k8s에서 PV가 실제로 사용하는 Disk 사용량을 쉽게 볼 수 있는 플러그인
+  E. get-all : k8s의 모든 리소스를 확인 할 수 있는 플러그인 ( 기본적인 get all은 ingress는 보여주지 않음 )
+  F. ktop : linux의 top처럼 k8s 자원을 확인 할 수 있는 플러그인
+  G. neat : yaml 형식을 가독성있게 출력해 주는 플러그인
+  H. oomd : Out of Memory로 죽은 pod 정보를 보여주는 플러그인
+  I. view-secret : k8s secret 정보를 복호화 해주는 플러그인
+  J. community-images : 이미지 저장소 신규 변경 점검 플러그인
+  K. kube-ps1 : bash or zsh 환경에서 context와 namespace를 표시해주는 플러그인
+  L. kubescape : DevOps를 위한 k8s 보안 플랫폼
+
+4. info-cluster: K8S 정보 ( KOPS(Cluster Info, Instance Group, Instance, Node IP), K8S(Cluster Info, Nodes, pods) )
+5. delete-cluster : 생성된 K8S 삭제
+6. install-externaldns : External DNS Addon 설치
+7. install-awslbcontroller : AWS Load Balancer Controller Addon 설치
+8. update-kops : Kops 설정 업데이트 ( 업데이트에 사용되는 변수들은 다음 경로의 파일을 사용합니다. roles/kops/vars/update.yaml)
 
    A. workerNodeSize : Worker Node Size 변경
       * Worker Node Size 변경은 다음값들을 변경후에 실행하면 됩니다.
@@ -62,33 +77,54 @@ AWS_SecretKey: <생성된 Secret Key>
      ```
    C. maxPod: Max Pod 변경 ( 예정 )
 
-8. install-harbor : Harbor 설치
+9. install-harbor : Harbor 설치
   - region의 ACM에 인증서가 미리 발급되어 있어야 합니다.
   - Aws Load Balancer Controller 가 설치됩니다.
   - ExternalDNS 가 설치됩니다.
 
-9. install-gitlab : Gitlab 설치
+10. install-gitlab : Gitlab 설치
   - region의 ACM에 인증서가 미리 발급되어 있어야 합니다.
   - Aws Load Balancer Controller 가 설치됩니다.
   - ExternalDNS 가 설치됩니다.
 
-10. install-argocd : Argocd 설치
+11. install-argocd : Argocd 설치
   - region의 ACM에 인증서가 미리 발급되어 있어야 합니다.
   - Aws Load Balancer Controller 가 설치됩니다.
   - ExternalDNS 가 설치됩니다.
 
-11. install-prometheus: Prometheus & AlertManager & Grafana 설치
+12. install-prometheus: Prometheus & AlertManager & Grafana 설치
   - region의 ACM에 인증서가 미리 발급되어 있어야 합니다.
   - Aws Load Balancer Controller 가 설치됩니다.
   - ExternalDNS 가 설치됩니다.
 
-12. install-kwatch : Kwatch 설치
+13. install-kwatch : Kwatch 설치
   - secret yaml에 다음 정보가 있어야 합니다.
   ```
   slack_webhook: <Slack Webhook URL>
   ```
 
-13. install-loki : Loki & Promtail 설치
+14. install-loki : Loki & Promtail 설치
+
+15. install-polaris : Polaris 설치
+  - Aws Load Balancer Controller 가 설치됩니다.
+  - ExternalDNS 가 설치됩니다.
+
+## test-deploy.yaml
+1. mario-deploy : Mario 게임을 배포합니다.
+
+2. mario-deploy-with-externaldns : Mario 게임을 ExternalDNS를 사용해서 보유한 도메인의 mario.<<도메인>> 으로 배포합니다.
+
+3. netshoot-network-dump : aws vpc cni network 테스트를 할 수 있는 netshoot을 배포합니다.
+
+4. deploy-nlb-http : http 테스트를 nlb를 사용하여 배포합니다.
+
+5. deploy-nlb-https : https 테스트를 nlb를 사용하여 배포합니다.
+
+6. deploy-nlb-proxyprotocol : proxyprotocol을 적용한 nlb를 배포합니다.
+
+7. deploy-alb : http / https 테스트가 가능한 alb를 배포합니다.
+
+8. deploy-alb-externaldns : http /https 테스트가 가능하며, ExternalDNS를 사용해서 보유한 도메인으로 접속 가능하게 배포합니다.
 
 ## 실행 순서
 
